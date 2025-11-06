@@ -12,7 +12,7 @@ public class GamePanel extends JPanel{
         frame.add(this);
         frame.pack();
         frame.setVisible(true);
-
+        // hallo tst 1
     }
 
 }
