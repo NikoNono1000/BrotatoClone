@@ -65,4 +65,4 @@ public class GamePanel extends JPanel implements Runnable{
         g.drawString("FPS: " + Long.toString(fps), 20 , 10);
     }
 
-} //halloooo
+}
