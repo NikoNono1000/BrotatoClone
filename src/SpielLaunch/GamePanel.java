@@ -59,10 +59,12 @@ public class GamePanel extends JPanel implements Runnable{
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // Rendering code here
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, getWidth(), getHeight()); // Weißer Hintergrund
 
         g.setColor(Color.RED);
-        g.drawString("FPS: " + Long.toString(fps), 20 , 10);
+        g.drawString("FPS: " + fps, 20 , 20);
     }
+
 
 }
