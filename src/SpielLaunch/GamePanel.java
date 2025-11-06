@@ -41,10 +41,8 @@ public class GamePanel extends JPanel implements Runnable{
         while(game_running) {
            
             try {
-                Thread.sleep(16); // Approx 60 FPS
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+                Thread.sleep(10); // Approx 60 FPS
+            } catch (InterruptedException e) {}
 
         }
 
