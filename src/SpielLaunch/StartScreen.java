@@ -1,8 +1,8 @@
 package SpielLaunch;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 public class StartScreen extends JFrame {
 
@@ -28,7 +28,7 @@ public class StartScreen extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 400);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        //setLayout(new BorderLayout());
 
         // === Titel ===
         JLabel title = new JLabel("BROTATO CLONE", SwingConstants.CENTER);
