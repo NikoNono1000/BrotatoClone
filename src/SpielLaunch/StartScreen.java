@@ -1,5 +1,10 @@
 package SpielLaunch;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -122,6 +127,22 @@ public class StartScreen extends JFrame {
     private void startGame() {
         String selectedMode = displayModes[currentModeIndex];
         int selectedFps = getSelectedFpsValue();
+
+        // Write chosen settings to src/Einstellungen/Einstellungen.txt
+        Path settingsPath = Paths.get("src", "Einstellungen", "Visual_Einstellungen.txt");
+        String content = "DisplayMode=" + selectedMode + System.lineSeparator()
+                + "FPS=" + (selectedFps == 0 ? "Unlimited" : selectedFps) + System.lineSeparator();
+        try {
+            if (settingsPath.getParent() != null) {
+                Files.createDirectories(settingsPath.getParent());
+            }
+            Files.write(settingsPath, content.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to write settings: " + e.getMessage(), "I/O Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         dispose();
 
         switch (selectedMode) {
