@@ -51,7 +51,7 @@ public class GamePanel extends JPanel implements Runnable {
                 lastFpsTime += 1000;
             }
 
-            // --- FPS Limitierung ---
+            // --- FPS Limiter ---
             if (targetFPS > 0) {
                 long elapsed = System.nanoTime() - now;
                 long sleepTime = (optimalTime - elapsed) / 1_000_000;
