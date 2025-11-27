@@ -1,2 +1,0 @@
-DisplayMode=Fullscreen
-FPS=144

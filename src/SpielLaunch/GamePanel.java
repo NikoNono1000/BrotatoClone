@@ -73,7 +73,7 @@ public class GamePanel extends JPanel implements Runnable {
         g.fillRect(0, 0, getWidth(), getHeight());
 
         // FPS Anzeige
-        g.setColor(Color.GREEN);
+        g.setColor(Color.RED);
         g.setFont(new Font("Consolas", Font.PLAIN, 16));
         g.drawString("FPS: " + fps, 20, 30);
     }

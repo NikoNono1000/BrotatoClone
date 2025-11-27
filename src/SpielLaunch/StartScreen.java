@@ -1,13 +1,14 @@
 package SpielLaunch;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.util.Properties;
 
 public class StartScreen extends JFrame {
 
@@ -29,24 +30,21 @@ public class StartScreen extends JFrame {
     public StartScreen() {
         super("Brotato Clone – Start");
 
-        // === Fenster-Basis ===
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 400);
         setLocationRelativeTo(null);
-        //setLayout(new BorderLayout());
 
-        // === Titel ===
+        // TITLE
         JLabel title = new JLabel("BROTATO CLONE", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 28));
         add(title, BorderLayout.NORTH);
 
-        // === Hauptpanel ===
         JPanel centerPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(15, 10, 15, 10);
         gbc.gridx = 0; gbc.gridy = 0;
 
-        // === Display Mode Auswahl ===
+        // DISPLAY MODE
         leftArrowMode = new JButton("←");
         rightArrowMode = new JButton("→");
         styleArrow(leftArrowMode);
@@ -64,7 +62,7 @@ public class StartScreen extends JFrame {
         gbc.gridx++;
         centerPanel.add(rightArrowMode, gbc);
 
-        // === FPS Auswahl ===
+        // FPS
         gbc.gridx = 0;
         gbc.gridy++;
         leftArrowFps = new JButton("←");
@@ -84,7 +82,7 @@ public class StartScreen extends JFrame {
         gbc.gridx++;
         centerPanel.add(rightArrowFps, gbc);
 
-        // === Start Button ===
+        // START BUTTON
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 3;
@@ -124,24 +122,38 @@ public class StartScreen extends JFrame {
         return Integer.parseInt(val);
     }
 
+    // ------------------------------
+    // NEW: Save settings to properties
+    // ------------------------------
+    private void saveSettingsToProperties(String mode, int fps) {
+        Properties props = new Properties();
+
+        props.setProperty("DisplayMode", mode);
+        props.setProperty("FPS", fps == 0 ? "Unlimited" : String.valueOf(fps));
+
+        Path settingsPath = Paths.get("visual_settings.properties");
+
+        try (OutputStream out = new FileOutputStream(settingsPath.toFile())) {
+            props.store(out, "Visual Game Settings");
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(
+                this,
+                "Failed to write settings: " + e.getMessage(),
+                "I/O Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    // ------------------------------
+
     private void startGame() {
         String selectedMode = displayModes[currentModeIndex];
         int selectedFps = getSelectedFpsValue();
 
-        // Write chosen settings to src/Einstellungen/Einstellungen.txt
-        Path settingsPath = Paths.get("src", "Einstellungen", "Visual_Einstellungen.txt");
-        String content = "DisplayMode=" + selectedMode + System.lineSeparator()
-                + "FPS=" + (selectedFps == 0 ? "Unlimited" : selectedFps) + System.lineSeparator();
-        try {
-            if (settingsPath.getParent() != null) {
-                Files.createDirectories(settingsPath.getParent());
-            }
-            Files.write(settingsPath, content.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Failed to write settings: " + e.getMessage(), "I/O Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        // NEW: Save properties file
+        saveSettingsToProperties(selectedMode, selectedFps);
 
         dispose();
 
