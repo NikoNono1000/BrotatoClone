@@ -147,17 +147,27 @@ public class StartScreen extends JFrame {
         String selectedMode = displayModes[currentModeIndex];
         int selectedFps = getSelectedFpsValue();
 
-        // NEW: Save properties file
         saveSettingsToProperties(selectedMode, selectedFps);
 
-        dispose();
+        dispose(); // Menü schließen
 
         switch (selectedMode) {
-            case "Windowed" -> new GamePanel(1000, 800, selectedFps);
+            case "Windowed" -> launchWindowed(selectedFps);
             case "Borderless Windowed" -> launchBorderlessWindowed(selectedFps);
             case "Fullscreen" -> launchFullscreen(selectedFps);
         }
     }
+
+    private void launchWindowed(int fps) {
+        JFrame frame = new JFrame("Brotato Clone");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(1000, 800);
+        frame.setLocationRelativeTo(null);
+
+        frame.add(new GamePanel(1000, 800, fps));
+        frame.setVisible(true);
+    }
+
 
     private void launchBorderlessWindowed(int fps) {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
