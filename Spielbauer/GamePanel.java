@@ -40,10 +40,11 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
     public GamePanel(int width, int height) {
         this.setPreferredSize(new Dimension(width, height));
+        this.setFocusable(true);
+        this.addKeyListener(this);
         JFrame frame = new JFrame("GameDemo");
         frame.setLocation(100, 100);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.addKeyListener(this);
         frame.add(this);
         frame.pack();
         frame.setVisible(true);
@@ -93,9 +94,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         fps = ((long) 1e9) /  delta;
     }
 
-    private void checkKeys() {
-        // placeholder: implement keyboard handling here
-    }
+
 
     private void doLogic() {
         for (Movable move:actors) {
@@ -128,12 +127,62 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         BufferedImage[] anim = new BufferedImage[pics];
         BufferedImage source = null;
 
-        URL pic_url = getClass().getClassLoader().getResource(path);
+        // Try multiple ways to resolve the resource using the provided `path`:
+        // 1) package-relative: getResource("pics/heli.gif") -> looks under BrotatoClone/Spielbauer/
+        // 2) absolute classpath: getResource("/pics/heli.gif") or getResource("/BrotatoClone/Spielbauer/pics/heli.gif")
+        // 3) classloader lookup
+        // 4) filesystem fallback (useful during development)
 
+        URL pic_url = null;
+
+        // 1) package-relative (if path does NOT start with '/')
         try {
-            source = ImageIO.read(pic_url); 
-        } catch (IOException e) {
-            e.printStackTrace();
+            pic_url = getClass().getResource(path);
+        } catch (Exception ignored) {
+        }
+
+        // 2) absolute classpath (leading '/')
+        if (pic_url == null) {
+            try {
+                if (!path.startsWith("/")) {
+                    pic_url = getClass().getResource("/" + path);
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        // 3) classloader lookup
+        if (pic_url == null) {
+            pic_url = getClass().getClassLoader().getResource(path.startsWith("/") ? path.substring(1) : path);
+        }
+
+        // 4) filesystem fallback
+        if (pic_url == null) {
+            java.io.File f = new java.io.File(path);
+            if (f.exists()) {
+                try {
+                    source = ImageIO.read(f);
+                } catch (IOException e) {
+                    System.err.println("ERROR: Failed to load image from file " + path);
+                    e.printStackTrace();
+                    return anim;
+                }
+            } else {
+                System.err.println("ERROR: Image file not found (classpath+filesystem) for path: " + path);
+                return anim;
+            }
+        } else {
+            try {
+                source = ImageIO.read(pic_url);
+            } catch (IOException e) {
+                System.err.println("ERROR: Failed to load image from resource " + pic_url + " (original path: " + path + ")");
+                e.printStackTrace();
+                return anim;
+            }
+            if (source == null) {
+                System.err.println("ERROR: ImageIO.read returned null for resource " + pic_url + " (original path: " + path + ")");
+                return anim;
+            }
         }
 
         for (int x=0;x<pics;x++) {
@@ -145,9 +194,61 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
     public void keyPressed(KeyEvent e) {
 
+        if(e.getKeyCode() == KeyEvent.VK_UP) {
+            up = true;
+        }
+
+        if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+            down = true;
+        }
+
+        if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+            left = true;
+        }
+
+        if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            right = true;
+        }   
+
     }
 
     public void keyReleased(KeyEvent e) {
+
+        if(e.getKeyCode() == KeyEvent.VK_UP) {
+            up = false;
+        }
+
+        if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+            down = false;
+        }
+
+        if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+            left = false;
+        }
+
+        if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            right = false;
+        }
+
+    }
+
+    public void checkKeys() {
+
+        if(up) {
+            copter.setVerticalSpeed(-speed);
+        } else if(down) {
+            copter.setVerticalSpeed(speed);
+        } else {
+            copter.setVerticalSpeed(0);
+        }
+
+        if(left) {
+            copter.setHorizontalSpeed(-speed);
+        } else if(right) {
+            copter.setHorizontalSpeed(speed);
+        } else {
+            copter.setHorizontalSpeed(0);
+        }
 
     }
 
@@ -161,4 +262,4 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
 
 
-/// Page 25 
+/// Page 27 
