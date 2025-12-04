@@ -7,13 +7,14 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class NPCBewegung {
 
     // ------------ Innere NPC-Klasse ---------------
     private class NPC {
         double x, y;
-        double speed = 1.5;
+        double speed = 10;
         BufferedImage img;
 
         NPC(int spawnX, int spawnY, BufferedImage img) {
@@ -36,12 +37,22 @@ public class NPCBewegung {
         void draw(Graphics2D g2) {
             g2.drawImage(img, (int)x - img.getWidth() / 2, (int)y - img.getHeight() / 2, null);
         }
+
+        // --- NEU: Hitbox ---
+        Rectangle getHitbox() {
+            return new Rectangle(
+                (int)x - img.getWidth() / 2,
+                (int)y - img.getHeight() / 2,
+                img.getWidth(),
+                img.getHeight()
+            );
+        }
     }
 
     // ------------ NPC Manager Felder ----------------
     private ArrayList<NPC> npcs = new ArrayList<>();
     private long lastSpawnTime = 0;
-    private long spawnInterval = 5000;
+    private long spawnInterval = 50;
 
     private BufferedImage npcTexture;
 
@@ -54,29 +65,29 @@ public class NPCBewegung {
         String filename = "Melee_Enemy.png";
 
         try {
-            // 1) Entwickeln unter /src → Datei existiert hier:
+            // 1) Entwickeln unter /src
             File srcFile = new File("src/Enemies/NPCs/" + filename);
             if (srcFile.exists()) {
                 System.out.println("NPC Textur geladen aus src/: " + srcFile.getAbsolutePath());
                 return ImageIO.read(srcFile);
             }
 
-            // 2) Kompiliert unter /bin → Datei existiert hier:
+            // 2) Kompiliert unter /bin
             File binFile = new File("bin/Enemies/NPCs/" + filename);
             if (binFile.exists()) {
                 System.out.println("NPC Textur geladen aus bin/: " + binFile.getAbsolutePath());
                 return ImageIO.read(binFile);
             }
 
-            // 3) Projektstruktur aus VSCode workspaceStorage → automatisch suchen
-            File searchRoot = new File(".");
-            File found = recursiveSearch(searchRoot, filename);
+            // 3) Tiefensuche im gesamten Projektverzeichnis
+            File found = recursiveSearch(new File("."), filename);
             if (found != null) {
                 System.out.println("NPC Textur gefunden unter: " + found.getAbsolutePath());
                 return ImageIO.read(found);
             }
 
             System.out.println("FEHLER: NPC Textur NICHT gefunden!");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -84,7 +95,7 @@ public class NPCBewegung {
         return null;
     }
 
-    // ------------ Rekursive Suche nach der PNG ----------------
+    // ------------ Rekursive Suche ----------------
     private File recursiveSearch(File dir, String name) {
         File[] files = dir.listFiles();
         if (files == null) return null;
@@ -100,17 +111,27 @@ public class NPCBewegung {
         return null;
     }
 
-    // ------------ NPC Manager Aktualisierung ----------------
+    // ------------ NPC-Aktualisierung + Kollision ----------------
     public void update(PlayerCharacter player, int screenW, int screenH) {
         long current = System.currentTimeMillis();
 
+        // Gegner spawnen
         if (current - lastSpawnTime >= spawnInterval) {
             spawnEnemy(screenW, screenH);
             lastSpawnTime = current;
         }
 
-        for (NPC n : npcs) {
+        // Gegner bewegen + Kollision prüfen
+        Iterator<NPC> iterator = npcs.iterator();
+        while (iterator.hasNext()) {
+            NPC n = iterator.next();
+
             n.update(player);
+
+            // --- KOLLISION: Gegner despawnt ---
+            if (n.getHitbox().intersects(player.getHitbox())) {
+                iterator.remove();
+            }
         }
     }
 

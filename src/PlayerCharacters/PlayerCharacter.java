@@ -4,19 +4,17 @@ import java.awt.*;
 
 public class PlayerCharacter {
 
-    // Position und Größe
     private int x;
     private int y;
     private int size = 50;
 
     public PlayerCharacter(int screenWidth, int screenHeight) {
-        // Spieler in der Mitte positionieren
         this.x = screenWidth / 2 - size / 2;
         this.y = screenHeight / 2 - size / 2;
     }
 
     public void update() {
-        // Spieler bleibt statisch – vorerst leer
+        // Spieler bleibt statisch – später ändern wir das.
     }
 
     public void draw(Graphics2D g2) {
@@ -25,5 +23,11 @@ public class PlayerCharacter {
     }
 
     public int getX() { return x + size / 2; }
+
     public int getY() { return y + size / 2; }
+
+    // --- NEU: Hitbox für Kollision ---
+    public Rectangle getHitbox() {
+        return new Rectangle(x, y, size, size);
+    }
 }
