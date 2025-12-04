@@ -122,9 +122,6 @@ public class StartScreen extends JFrame {
         return Integer.parseInt(val);
     }
 
-    // ------------------------------
-    // NEW: Save settings to properties
-    // ------------------------------
     private void saveSettingsToProperties(String mode, int fps) {
         Properties props = new Properties();
 
@@ -145,8 +142,6 @@ public class StartScreen extends JFrame {
             );
         }
     }
-
-    // ------------------------------
 
     private void startGame() {
         String selectedMode = displayModes[currentModeIndex];
