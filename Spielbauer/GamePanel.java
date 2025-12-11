@@ -42,6 +42,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
     public GamePanel(int width, int height) {
         this.setPreferredSize(new Dimension(width, height));
+        this.setBackground(Color.cyan);
         this.setFocusable(true);
         this.addKeyListener(this);
         JFrame frame = new JFrame("GameDemo");
@@ -58,15 +59,37 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         last = System.nanoTime();
 
         actors = new Vector<Sprite>();
-        BufferedImage[] heli = this.loadPics("pics/heli.gif", 4);
-        copter = new Heli(heli, 100, 100, 100, this);
-        actors.add(copter);
+ 
+
+        createcopter();
+        createClouds();
 
         if(!once) {
             once = true;
             Thread t = new Thread(this);
             t.start();
         }
+    }
+
+    private void createClouds() {
+
+        BufferedImage[] ci = this.loadPics("pics/cloud.gif", 1);
+
+        for(int y=10; y<getWidth(); y+=50) {
+            int x = (int)(Math.random()*getHeight());
+            Cloud cloud = new Cloud(ci, x, y, 1000, this);
+            actors.add(cloud);
+        }
+
+    }
+
+    private void createcopter() {
+
+        BufferedImage[] heli = this.loadPics("pics/heli.gif", 4);
+
+        copter = new Heli(heli, 100, 100, 100, this);
+        actors.add(copter);
+
     }
 
     public void run() {
@@ -299,4 +322,4 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
 
 
-/// Page 27 
+/// Page 37 
