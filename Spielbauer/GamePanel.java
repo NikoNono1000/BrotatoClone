@@ -19,12 +19,14 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     
     private static final long serialVersionUID = 1L;
     boolean game_running = true;
+    boolean started = false;
+    boolean once = false;
 
     long delta = 0;
     long last = 0;
     long fps = 0;
 
-    Sprite copter;
+    Heli copter;
     Vector<Sprite> actors;
 
     boolean up = false;
@@ -57,11 +59,14 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
         actors = new Vector<Sprite>();
         BufferedImage[] heli = this.loadPics("pics/heli.gif", 4);
-        copter = new Sprite(heli, 100, 100, 100, this);
+        copter = new Heli(heli, 100, 100, 100, this);
         actors.add(copter);
 
-        Thread t = new Thread(this);
-        t.start();
+        if(!once) {
+            once = true;
+            Thread t = new Thread(this);
+            t.start();
+        }
     }
 
     public void run() {
@@ -69,9 +74,12 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         while (game_running) {
 
             computeDelta();
-            checkKeys();
-            doLogic();
-            moveObjects();
+
+            if (isStarted()) {
+                checkKeys();
+                doLogic();
+                moveObjects();
+            }
 
 
             repaint();
@@ -114,6 +122,10 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
         g.setColor(Color.red);
         g.drawString("FPS: " + Long.toString(fps), 20, 10);
+
+        if (!isStarted()) {
+            return;
+        }
 
         if(actors != null) {
             for (Drawable draw:actors) {
@@ -230,6 +242,23 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
             right = false;
         }
 
+        if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+            if (isStarted()) {
+                setStarted(false);
+            } else {
+                setStarted(true);
+            }
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            if (isStarted()) {
+                setStarted(false);
+            } else {
+                setStarted(false);
+                System.exit(0);
+            }
+        }
+
     }
 
     public void checkKeys() {
@@ -254,6 +283,14 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
     public void keyTyped(KeyEvent e) {
 
+    }
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
     }
 
  
