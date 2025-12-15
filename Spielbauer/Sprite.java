@@ -4,7 +4,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.geom.Rectangle2D;
 
-public class Sprite extends Rectangle2D.Double implements Drawable, Movable {
+public abstract class Sprite extends Rectangle2D.Double implements Drawable, Movable {
 
     long delay;
     long animation = 0;
@@ -65,15 +65,25 @@ public class Sprite extends Rectangle2D.Double implements Drawable, Movable {
         return dx;
     }
 
+    double speedFactor = 2.5 * 1e8;
+
     public void move(long Delta) {
 
         if(dx != 0) {
-            x += dx * (Delta / 1e9);
+            x += dx * (Delta / speedFactor);
         }
 
         if(dy != 0) {
-            y += dy * (Delta / 1e9);
+            y += dy * (Delta / speedFactor);
         }
+    }
+
+    public void setX(double i) {
+        x = i;
+    }
+
+    public void setY(double i) {
+        y = i;
     }
     
 }
