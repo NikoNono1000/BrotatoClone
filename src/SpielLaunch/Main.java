@@ -5,4 +5,3 @@ public class Main {
         new StartScreen(); // Menü zuerst starten
     }
 }
-//hallo
