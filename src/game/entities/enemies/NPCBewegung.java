@@ -5,27 +5,26 @@ import game.entities.player.PlayerCharacter;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NPCBewegung {
 
-    // ======= Enemy scaling =======
-    private static final double ENEMY_SCALE = 0.2;
+    // ================= CONFIG =================
+    private static final double ENEMY_SCALE = 0.3;
+    private static final long SPAWN_INTERVAL_MS = 2000;
+    private static final double ENEMY_SPEED = 1.5;
 
-    // ======= Spawn settings =======
-    private static final long SPAWN_INTERVAL_MS = 5000;
-
-    // ======= Internal NPC class =======
-    private class NPC {
+    // ================= INNER NPC =================
+    private static class NPC {
         double x, y;
-        double speed = 1.5;
         BufferedImage img;
 
-        NPC(int spawnX, int spawnY, BufferedImage img) {
-            this.x = spawnX;
-            this.y = spawnY;
+        NPC(int x, int y, BufferedImage img) {
+            this.x = x;
+            this.y = y;
             this.img = img;
         }
 
@@ -35,8 +34,8 @@ public class NPCBewegung {
             double dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist > 0) {
-                x += (dx / dist) * speed;
-                y += (dy / dist) * speed;
+                x += (dx / dist) * ENEMY_SPEED;
+                y += (dy / dist) * ENEMY_SPEED;
             }
         }
 
@@ -59,51 +58,56 @@ public class NPCBewegung {
         }
     }
 
-    // ======= NPC storage (thread-safe) =======
+    // ================= FIELDS =================
     private final CopyOnWriteArrayList<NPC> npcs = new CopyOnWriteArrayList<>();
-
-    private long lastSpawnTime = 0;
     private final BufferedImage npcTexture;
+    private long lastSpawnTime = 0;
 
+    // ================= CONSTRUCTOR =================
     public NPCBewegung() {
-        npcTexture = loadAndScaleTexture(
-                "/textures/enemies/melee_enemy.png",
-                ENEMY_SCALE
-        );
+        npcTexture = loadEnemyTexture();
     }
 
-    // ======= Resource loading =======
-    private BufferedImage loadAndScaleTexture(String path, double scale) {
+    // ================= TEXTURE LOADING =================
+    private BufferedImage loadEnemyTexture() {
         try {
-            BufferedImage original = ImageIO.read(
-                    getClass().getResourceAsStream(path)
+            InputStream is = NPCBewegung.class.getResourceAsStream(
+                    "/textures/enemies/melee_enemy.png"
             );
 
-            int newW = (int) (original.getWidth() * scale);
-            int newH = (int) (original.getHeight() * scale);
+            if (is == null) {
+                throw new RuntimeException(
+                        "Enemy texture NOT found: /textures/enemies/melee_enemy.png"
+                );
+            }
+
+            BufferedImage original = ImageIO.read(is);
+
+            int newW = (int) (original.getWidth() * ENEMY_SCALE);
+            int newH = (int) (original.getHeight() * ENEMY_SCALE);
 
             Image scaled = original.getScaledInstance(
                     newW, newH, Image.SCALE_SMOOTH
             );
 
-            BufferedImage buffered = new BufferedImage(
+            BufferedImage result = new BufferedImage(
                     newW, newH, BufferedImage.TYPE_INT_ARGB
             );
 
-            Graphics2D g2 = buffered.createGraphics();
+            Graphics2D g2 = result.createGraphics();
             g2.drawImage(scaled, 0, 0, null);
             g2.dispose();
 
-            return buffered;
+            return result;
 
-        } catch (IOException | NullPointerException e) {
-            throw new RuntimeException(
-                    "Failed to load enemy texture: " + path, e
-            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+            return null; // unreachable, but Java wants it
         }
     }
 
-    // ======= Update =======
+    // ================= UPDATE =================
     public void update(PlayerCharacter player, int screenW, int screenH) {
         long now = System.currentTimeMillis();
 
@@ -112,7 +116,7 @@ public class NPCBewegung {
             lastSpawnTime = now;
         }
 
-        List<NPC> toRemove = new java.util.ArrayList<>();
+        List<NPC> toRemove = new ArrayList<>();
 
         for (NPC npc : npcs) {
             npc.update(player);
@@ -127,7 +131,7 @@ public class NPCBewegung {
         }
     }
 
-    // ======= Spawn logic =======
+    // ================= SPAWN =================
     private void spawnEnemy(int screenW, int screenH) {
         int side = (int) (Math.random() * 4);
         int x = 0, y = 0;
@@ -142,7 +146,7 @@ public class NPCBewegung {
         npcs.add(new NPC(x, y, npcTexture));
     }
 
-    // ======= Draw =======
+    // ================= DRAW =================
     public void draw(Graphics2D g2) {
         for (NPC npc : npcs) {
             npc.draw(g2);

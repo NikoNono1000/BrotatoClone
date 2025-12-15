@@ -1,6 +1,6 @@
-package Game.core;
+package game.core;
 
-import Game.ui.StartScreen;
+import game.ui.StartScreen;
 
 public class Main {
 
