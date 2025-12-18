@@ -228,44 +228,46 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     }
 
     public void keyPressed(KeyEvent e) {
+        int code = e.getKeyCode();
 
-        if(e.getKeyCode() == KeyEvent.VK_UP) {
+        if(code == KeyEvent.VK_UP || code == KeyEvent.VK_W) {
             up = true;
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+        if(code == KeyEvent.VK_DOWN || code == KeyEvent.VK_S) {
             down = true;
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+        if(code == KeyEvent.VK_LEFT || code == KeyEvent.VK_A) {
             left = true;
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+        if(code == KeyEvent.VK_RIGHT || code == KeyEvent.VK_D) {
             right = true;
-        }   
+        }
 
     }
 
     public void keyReleased(KeyEvent e) {
+        int code = e.getKeyCode();
 
-        if(e.getKeyCode() == KeyEvent.VK_UP) {
+        if(code == KeyEvent.VK_UP || code == KeyEvent.VK_W) {
             up = false;
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_DOWN) {
+        if(code == KeyEvent.VK_DOWN || code == KeyEvent.VK_S) {
             down = false;
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+        if(code == KeyEvent.VK_LEFT || code == KeyEvent.VK_A) {
             left = false;
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+        if(code == KeyEvent.VK_RIGHT || code == KeyEvent.VK_D) {
             right = false;
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_SPACE) {
+        if(code == KeyEvent.VK_SPACE) {
             if (isStarted()) {
                 setStarted(false);
             } else {
@@ -273,7 +275,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
             }
         }
 
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+        if (code == KeyEvent.VK_ESCAPE) {
             if (isStarted()) {
                 setStarted(false);
             } else {
